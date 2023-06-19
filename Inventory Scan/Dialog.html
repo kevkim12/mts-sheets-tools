@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+  font-family: Arial, sans-serif;
+}
+
+form {
+  margin: 20px;
+}
+
+label {
+  display: inline-block;
+  width: 100px;
+}
+
+input[type="text"],
+select {
+  width: 150px;
+  margin-bottom: 10px;
+}
+
+button[type="submit"] {
+  margin-top: 10px;
+}
+
+.message {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+    </style>
+  </head>
+  <body>
+    <form onsubmit="handleFormSubmit(event)">
+      <label for="partNumber">Part Number:</label>
+      <input type="text" id="partNumber" name="partNumber" required><br>
+      
+      <label for="option">Option:</label>
+      <select id="option" name="option" required>
+        <option value="add" selected>Add</option>
+        <option value="remove">Remove</option>
+      </select><br>
+      
+      <input type="submit" value="Submit">
+      <div id="message" class="message"></div>
+    </form>
+    
+<script>
+  function handleFormSubmit(event) {
+    event.preventDefault();
+    var form = {
+      partNumber: document.getElementById('partNumber').value,
+      option: document.getElementById('option').value
+    };
+    google.script.run.withSuccessHandler(displayMessage).processForm(form);
+    document.getElementById('partNumber').value = '';
+    document.getElementById('partNumber').focus();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var partNumberInput = document.getElementById('partNumber');
+    var optionSelect = document.getElementById('option');
+
+    partNumberInput.focus();
+
+    document.addEventListener('click', function(event) {
+      if (event.target !== optionSelect && !partNumberInput.contains(event.target)) {
+        partNumberInput.focus();
+      }
+    });
+
+    optionSelect.addEventListener('change', function() {
+      partNumberInput.focus();
+    });
+  });
+  
+  function displayMessage(message) {
+    var messageElement = document.getElementById('message');
+    messageElement.textContent = message;
+    messageElement.className = message.includes('added') ? 'message success' : 'message error';
+
+    setTimeout(function() {
+      messageElement.textContent = '';
+    }, 3000);
+  }
+</script>
+  </body>
+</html>
