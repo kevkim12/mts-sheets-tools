@@ -1,6 +1,6 @@
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
-  ui.createMenu('Custom Menu')
+  ui.createMenu('MTS Tools')
     .addItem('Add Task', 'showInputDialog')
     .addToUi();
 }
@@ -41,8 +41,7 @@ function addTask(employeeName, taskName) {
 
   var taskColumnIndex = findEmptyTaskColumn(adminSheet);
   if (taskColumnIndex === -1) {
-    taskColumnIndex = lastColumn + 1;
-    adminSheet.insertColumnAfter(lastColumn);
+    taskColumnIndex = lastColumn;
   }
 
   var date = new Date();
@@ -50,7 +49,16 @@ function addTask(employeeName, taskName) {
     adminSheet.getRange(employeeIndices[i], 1).setValue(date);
   }
 
-  var taskNumber = taskColumnIndex - 2;
+  var taskValues = adminSheet.getRange(2, taskColumnIndex, adminSheet.getLastRow() - 1).getValues().flat();
+  var emptyRow = taskValues.indexOf('');
+  if (emptyRow !== -1) {
+    taskColumnIndex = taskColumnIndex; // Start from the existing column
+  } else {
+    taskColumnIndex = lastColumn + 1; // Create a new column
+    adminSheet.insertColumnAfter(lastColumn);
+  }
+
+  var taskNumber = taskColumnIndex - 2 ;
   adminSheet.getRange(1, taskColumnIndex).setValue('Task ' + taskNumber);
   for (var i = 0; i < employeeIndices.length; i++) {
     adminSheet.getRange(employeeIndices[i], taskColumnIndex).setValue(taskName);
