@@ -20,7 +20,7 @@ function onOpen() {
     }
   
     // Get unique employee names from the admin sheet
-    var employeeNames = [...new Set(adminSheet.getRange(3, 2, adminSheet.getLastRow() - 2, 1).getValues().flat())];
+    var employeeNames = [...new Set(adminSheet.getRange(2, 2, adminSheet.getLastRow() - 2, 1).getValues().flat())];
   
     // Create separate sheet for each employee
     for (var i = 0; i < employeeNames.length; i++) {
@@ -28,7 +28,7 @@ function onOpen() {
       var employeeSheet = employeeSpreadsheet.insertSheet(employeeName);
   
       // Filter tasks for the current employee
-      var filteredTasks = adminSheet.getRange(3, 1, adminSheet.getLastRow() - 2, adminSheet.getLastColumn())
+      var filteredTasks = adminSheet.getRange(2, 1, adminSheet.getLastRow() - 2, adminSheet.getLastColumn())
         .getValues()
         .filter(function (row) {
           return row[1] === employeeName && row.slice(2).some(function (task) { return task !== ''; }); // Exclude rows without any task
@@ -40,19 +40,19 @@ function onOpen() {
       })));
   
       // Set headers in employee sheet
-      var headers = [''].concat(taskNames);
+      var headers = taskNames;
       employeeSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   
-      // Copy filtered tasks to employee sheet
+      // Copy filtered tasks to employee sheet with data shifted to the left
       if (filteredTasks.length > 0) {
         var taskData = filteredTasks.map(function (row) {
-          return [''].concat(row.slice(2));
+          return row.slice(2); // Remove the first element (empty string)
         });
         employeeSheet.getRange(1, 1, taskData.length, taskData[0].length).setValues(taskData);
       }
   
       // Apply formatting to employee sheet
-      var range = employeeSheet.getRange(1, 1, filteredTasks.length + 1, taskNames.length + 1);
+      var range = employeeSheet.getRange(1, 1, filteredTasks.length, taskNames.length);
       range.setHorizontalAlignment('center');
       range.setVerticalAlignment('middle');
     }
