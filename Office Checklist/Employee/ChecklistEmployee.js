@@ -34,8 +34,10 @@ function onOpen() {
           return row[1] === employeeName && row.slice(2).some(function (task) { return task !== ''; }); // Exclude rows without any task
         });
   
-      // Get task names from the filtered tasks
-      var taskNames = filteredTasks.length > 0 ? filteredTasks[0].slice(2) : [];
+      // Get unique task names from the filtered tasks
+      var taskNames = Array.from(new Set(filteredTasks.flatMap(function (row) {
+        return row.slice(2);
+      })));
   
       // Set headers in employee sheet
       var headers = [''].concat(taskNames);
@@ -46,7 +48,7 @@ function onOpen() {
         var taskData = filteredTasks.map(function (row) {
           return [''].concat(row.slice(2));
         });
-        employeeSheet.getRange(2, 1, taskData.length, taskData[0].length).setValues(taskData);
+        employeeSheet.getRange(1, 1, taskData.length, taskData[0].length).setValues(taskData);
       }
   
       // Apply formatting to employee sheet
