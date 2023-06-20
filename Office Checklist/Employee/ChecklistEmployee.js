@@ -20,7 +20,13 @@ function onOpen() {
     }
   
     // Get unique employee names from the admin sheet
-    var employeeNames = [...new Set(adminSheet.getRange(2, 2, adminSheet.getLastRow() - 2, 1).getValues().flat())];
+    var employeeNames = adminSheet
+      .getRange('B2:B' + adminSheet.getLastRow())
+      .getValues()
+      .flat()
+      .filter(function (name) {
+        return name !== '';
+      });
   
     // Create separate sheet for each employee
     for (var i = 0; i < employeeNames.length; i++) {
@@ -28,7 +34,7 @@ function onOpen() {
       var employeeSheet = employeeSpreadsheet.insertSheet(employeeName);
   
       // Filter tasks for the current employee
-      var filteredTasks = adminSheet.getRange(2, 1, adminSheet.getLastRow() - 2, adminSheet.getLastColumn())
+      var filteredTasks = adminSheet.getRange(2, 1, adminSheet.getLastRow() - 1, adminSheet.getLastColumn())
         .getValues()
         .filter(function (row) {
           return row[1] === employeeName && row.slice(2).some(function (task) { return task !== ''; }); // Exclude rows without any task
@@ -55,5 +61,10 @@ function onOpen() {
       var range = employeeSheet.getRange(1, 1, filteredTasks.length, taskNames.length);
       range.setHorizontalAlignment('center');
       range.setVerticalAlignment('middle');
+  
+      // Insert checkboxes below the tasks
+      var checkboxesRange = employeeSheet.getRange(2, 1, taskData.length, taskData[0].length);
+      var rule = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+      checkboxesRange.setDataValidation(rule);
     }
   }
