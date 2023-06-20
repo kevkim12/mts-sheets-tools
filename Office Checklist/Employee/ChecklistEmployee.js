@@ -66,5 +66,56 @@ function onOpen() {
       var checkboxesRange = employeeSheet.getRange(2, 1, taskData.length, taskData[0].length);
       var rule = SpreadsheetApp.newDataValidation().requireCheckbox().build();
       checkboxesRange.setDataValidation(rule);
+  
+      // Apply cell formatting based on checkbox values
+      var checkboxValues = checkboxesRange.getValues();
+      for (var row = 0; row < checkboxValues.length; row++) {
+        for (var col = 0; col < checkboxValues[row].length; col++) {
+          var cell = checkboxesRange.getCell(row + 1, col + 1);
+          if (checkboxValues[row][col] === true) {
+            //cell.setBackground('green'); // Set cell background to green if checkbox is true
+          } else {
+           // cell.setBackground('red'); // Set cell background to red if checkbox is false
+          }
+        }
+      }
+  
+      // Add an onChange trigger to update admin spreadsheet when checkbox is clicked
+      var triggerFunction = 'updateAdminSpreadsheet';
+      var onChangeTrigger = ScriptApp.newTrigger(triggerFunction)
+        .forSpreadsheet(employeeSpreadsheet)
+        .onChange()
+        .create();
+    }
+  }
+  
+  // Function to update the admin spreadsheet when a checkbox is clicked
+  function updateAdminSpreadsheet(e) {
+    var range = e.range;
+    var employeeSheet = range.getSheet();
+    var employeeName = employeeSheet.getName();
+  
+    var adminSpreadsheetId = '1KrA4rZhdOTNH_F9Pqil-RW9uNftF4UKvXLvUrQgdtgY'; // ID of the Admin checklist spreadsheet
+    var adminSheetName = 'Sheet1'; // Name of the Admin checklist sheet
+  
+    var adminSpreadsheet = SpreadsheetApp.openById(adminSpreadsheetId);
+    var adminSheet = adminSpreadsheet.getSheetByName(adminSheetName);
+  
+    // Find the corresponding task in the admin sheet and update its color
+    var taskName = range.getA1Notation().replace(/\d/g, ''); // Get the column letter
+    var rowIndex = range.getRowIndex();
+    var adminRange = adminSheet.getRange(2, 1, adminSheet.getLastRow() - 1, adminSheet.getLastColumn());
+    var adminValues = adminRange.getValues();
+    for (var i = 0; i < adminValues.length; i++) {
+      var row = adminValues[i];
+      if (row[1] === employeeName && row[0] === taskName) {
+        var adminCell = adminSheet.getRange(i + 2, rowIndex);
+        if (range.isChecked()) {
+          adminCell.setBackground('green'); // Set admin cell background to green if checkbox is true
+        } else {
+          adminCell.setBackground('red'); // Set admin cell background to red if checkbox is false
+        }
+        break;
+      }
     }
   }
