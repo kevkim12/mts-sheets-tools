@@ -1,3 +1,18 @@
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('Custom Menu')
+    .addItem('Add Task', 'showInputDialog')
+    .addToUi();
+}
+
+function showInputDialog() {
+  var htmlOutput = HtmlService.createHtmlOutputFromFile('Dialog')
+    .setWidth(300)
+    .setHeight(200);
+  
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Add Task');
+}
+
 function addTask(employeeName, taskName) {
   var adminSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var employeeSheet = SpreadsheetApp.openById('1AFKLl6KPPzNzpGtPCHvZxBhtGJQHfrugVpAy7iL_ORU').getActiveSheet();
